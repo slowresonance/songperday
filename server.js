@@ -23,6 +23,6 @@ app.get("/song", (req, res) => {
   res.status(200).send(handler.getSongByQuery(req.query));
 });
 
-app.get("/song/:id", (req, res) => {
-  //   getSongById(req.params.id);
+app.get("/song/:id?", (req, res) => {
+  res.status(200).send(handler.getSongById(req.params.id));
 });

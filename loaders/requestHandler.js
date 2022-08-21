@@ -1,9 +1,88 @@
 function getSongByQuery(query) {
-  const { num, inuser, exuser, year, month, date, first, last } = query;
+  let { any, inuser, exuser, year, month, date, first, last } = query;
 
-  const result = songs.filter((song) => song.provider === "Manisha");
+  const includeUsers = inuser ? inuser.split(",") : [];
+  const excludeUsers = exuser ? exuser.split(",") : [];
+
+  if (first === undefined) {
+    first = 0;
+  } else {
+    first = parseInt(first);
+  }
+
+  if (last === undefined) {
+    last = 0;
+  } else {
+    last = parseInt(last);
+  }
+
+  if (any === undefined) {
+    any = 0;
+  } else {
+    any = parseInt(any);
+  }
+
+  let result = songs;
+
+  // Filter by attributes of song (inuser, exuser, year, month, date)
+  // inuser = users whose songs are to be included
+  // exuser = users whose songs are to be excluded
+  // year, month, date = self explanatory
+
+  if (includeUsers.length) {
+    result = result.filter((song) => includeUsers.includes(song.provider));
+  }
+  //console.log(result);
+  if (excludeUsers.length) {
+    result = result.filter((song) => !excludeUsers.includes(song.provider));
+  }
+  //console.log(result);
+  if (year) {
+    result = result.filter((song) => year === song.year);
+  }
+  if (month) {
+    result = result.filter((song) => month === song.month);
+  }
+  if (date) {
+    result = result.filter((song) => date === song.date);
+  }
+
+  // Picking out certain number of songs from result (any, first, last)
+  // any = exact number of songs to include (0 = all)
+  // first = songs among the first N songs
+  // last = songs among the latest N songs
+
+  //console.log(first, last, any, result.length, typeof first);
+
+  if (first + last < result.length && first + last !== 0) {
+    //console.log("in if");
+    let firstRes = [];
+    let lastRes = [];
+
+    if (first > 0) {
+      firstRes = result.slice(0, Math.min(first, result.length));
+    }
+    if (last > 0) {
+      lastRes = result.slice(-Math.min(last, result.length));
+    }
+
+    result = firstRes.concat(lastRes);
+  }
+
+  if (any > 0) {
+    effectiveAny = Math.min(any, result.length);
+    result = getMultipleRandom(result, effectiveAny);
+  }
 
   return result;
+}
+
+function getSongById(id) {
+  for (let song of songs) {
+    if (song.id === id) {
+      return song;
+    }
+  }
 }
 
 const songs = [
@@ -586,4 +665,10 @@ const songs = [
   },
 ];
 
-module.exports = { getSongByQuery };
+function getMultipleRandom(arr, num) {
+  const shuffled = [...arr].sort(() => 0.5 - Math.random());
+
+  return shuffled.slice(0, num);
+}
+
+module.exports = { getSongByQuery, getSongById };
