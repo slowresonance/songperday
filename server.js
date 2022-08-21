@@ -20,7 +20,6 @@ app.use(express.json());
 // 	/song?last = "5"
 
 app.get("/song", (req, res) => {
-  console.log(handler);
   res.status(200).send(handler.getSongByQuery(req.query));
 });
 
